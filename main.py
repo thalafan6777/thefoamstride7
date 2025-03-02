@@ -4,7 +4,7 @@ from firebase_admin import credentials, db
 import os
 
 # 🔹 Path to Firebase Credentials (Change This)
-JSON_PATH = "thefoamstride-firebase-adminsdk-fbsvc-3da2d80166.json"  # <-- UPDATE THIS
+JSON_PATH = "thefoamstride-firebase-adminsdk-fbsvc-7199bcbd97.json"  # <-- UPDATE THIS
 
 # 🔹 Firebase Database URL (Change This)
 DATABASE_URL = "https://thefoamstride-default-rtdb.firebaseio.com"  # <-- UPDATE THIS
