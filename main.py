@@ -1,30 +1,46 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
+import os
 
-# Firebase Initialization
-cred = credentials.Certificate("thefoamstride-firebase-adminsdk-fbsvc-3da2d80166.json")  # Replace with your actual path
-firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://thefoamstride-default-rtdb.firebaseio.com'  # Replace with your Firebase DB URL
-})
+# 🔹 Path to Firebase Credentials (Change This)
+JSON_PATH = "thefoamstride-firebase-adminsdk-fbsvc-3da2d80166.json"  # <-- UPDATE THIS
 
-# Function to fetch data from Firebase "calendar" node
-def get_calendar_data():
-    ref = db.reference('/calendar')  # Fetching data from "calendar"
+# 🔹 Firebase Database URL (Change This)
+DATABASE_URL = "https://thefoamstride-default-rtdb.firebaseio.com"  # <-- UPDATE THIS
+
+# ✅ Ensure JSON file exists
+if not os.path.exists(JSON_PATH):
+    st.error(f"❌ ERROR: Firebase credentials file not found: {JSON_PATH}")
+    st.stop()
+
+# ✅ Initialize Firebase (Only if not already initialized)
+if not firebase_admin._apps:
+    try:
+        cred = credentials.Certificate(JSON_PATH)
+        firebase_admin.initialize_app(cred, {"databaseURL": DATABASE_URL})
+    except Exception as e:
+        st.error(f"❌ ERROR: Firebase initialization failed: {str(e)}")
+        st.stop()
+
+# ✅ Fetch Data from Firebase
+try:
+    ref = db.reference("/calendar")  # <-- Ensure 'calendar' exists in your database
     data = ref.get()
-    return data
+    
+    if data:
+        st.success("✅ Data retrieved successfully!")
+    else:
+        st.warning("⚠️ No data found in Firebase.")
 
-# Streamlit App
-st.title("📅 Firebase Calendar Data Viewer")
+except Exception as e:
+    st.error(f"❌ ERROR: Failed to fetch data: {str(e)}")
+    st.stop()
 
-calendar_data = get_calendar_data()
+# ✅ Display Data in Streamlit
+st.title("📅 Firebase Calendar Data")
 
-# Check if data is available
-if calendar_data:
-    for date, info in calendar_data.items():
-        st.subheader(f"📅 {date}")
-        st.write(info)  # Displaying data
+if data:
+    st.json(data)  # Displays data in JSON format
 else:
-    st.warning("No calendar data found.")
-
-# Run the app with: streamlit run app.py
+    st.write("No data available.")
